@@ -1,4 +1,8 @@
-## WebRTC speech to text server
+## WebRTC ASR
+
+It's forked from https://github.com/rviscarra/webrtc-speech-to-text, and modified for a WebRTC recorder and transcriber
+
+still building...
 
 ### Dependencies
 
@@ -53,7 +57,7 @@ Say something and press the **Stop** button, the results (if any) should appear 
 
 ![Architecture and data flow](docs/architecture.png)
 
-### Coming soon
+
 
 - Unit tests.
 - Be able to specify the desired language.
