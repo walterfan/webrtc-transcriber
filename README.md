@@ -1,4 +1,4 @@
-## WebRTC ASR
+## WebRTC Recorder and Transcriber
 
 It's forked from https://github.com/rviscarra/webrtc-speech-to-text, and modified for a WebRTC recorder and transcriber
 
