@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/rviscarra/webrtc-speech-to-text/internal/rtc"
+	"github.com/walterfan/webrtc-transcriber/internal/rtc"
 )
 
 // MakeHandler returns an HTTP handler for the session service

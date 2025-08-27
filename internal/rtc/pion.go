@@ -1,6 +1,7 @@
 package rtc
 
 import (
+	"context"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -8,7 +9,7 @@ import (
 	"time"
 
 	"github.com/pion/webrtc/v2"
-	"github.com/rviscarra/webrtc-speech-to-text/internal/transcribe"
+	"github.com/walterfan/webrtc-transcriber/internal/transcribe"
 )
 
 // PionPeerConnection is a webrtc.PeerConnection wrapper that implements the
@@ -60,6 +61,17 @@ func (p *PionPeerConnection) Close() error {
 }
 
 func (pi *PionRtcService) handleAudioTrack(track *webrtc.Track, dc *webrtc.DataChannel) error {
+	// Safety check for nil parameters
+	if track == nil {
+		return fmt.Errorf("track is nil")
+	}
+	if dc == nil {
+		return fmt.Errorf("dataChannel is nil")
+	}
+	if pi.transcriber == nil {
+		return fmt.Errorf("transcriber service is nil")
+	}
+
 	decoder, err := newDecoder()
 	if err != nil {
 		return err
@@ -89,44 +101,94 @@ func (pi *PionRtcService) handleAudioTrack(track *webrtc.Track, dc *webrtc.DataC
 	}()
 
 	errs := make(chan error, 2)
-	audioStream := make(chan []byte)
-	response := make(chan bool)
-	timer := time.NewTimer(5 * time.Second)
+	audioStream := make(chan []byte, 100)   // Buffered channel to avoid blocking
+	response := make(chan bool, 100)        // Buffered channel to avoid blocking
+	timer := time.NewTimer(5 * time.Second) // 5 second timeout for normal operation
+	defer timer.Stop()
+
+	// Context for graceful shutdown
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	go func() {
+		defer close(audioStream)
 		for {
-			packet, err := track.ReadRTP()
-			timer.Reset(1 * time.Second)
-			if err != nil {
-				timer.Stop()
-				if err == io.EOF {
-					close(audioStream)
+			select {
+			case <-ctx.Done():
+				return
+			default:
+				packet, err := track.ReadRTP()
+				if err != nil {
+					if err == io.EOF {
+						log.Printf("Track ended for %s", track.ID())
+						return
+					}
+					log.Printf("Error reading RTP packet: %v", err)
+					errs <- err
 					return
 				}
-				errs <- err
-				return
+
+				// Reset timer on successful read
+				timer.Reset(5 * time.Second)
+
+				select {
+				case audioStream <- packet.Payload:
+					// Wait for response before continuing
+					select {
+					case <-response:
+						// Continue reading
+					case <-ctx.Done():
+						return
+					}
+				case <-ctx.Done():
+					return
+				}
 			}
-			audioStream <- packet.Payload
-			<-response
 		}
 	}()
+
 	err = nil
 	for {
 		select {
-		case audioChunk := <-audioStream:
-			payload, err := decoder.decode(audioChunk)
-			response <- true
-			if err != nil {
-				return err
+		case audioChunk, ok := <-audioStream:
+			if !ok {
+				// Channel closed, stream ended
+				log.Printf("Audio stream ended for track %s", track.ID())
+				return nil
 			}
+
+			payload, err := decoder.decode(audioChunk)
+			if err != nil {
+				log.Printf("Error decoding audio: %v", err)
+				continue // Skip this chunk but continue processing
+			}
+
+			// Send response to unblock the reader
+			select {
+			case response <- true:
+			default:
+				// Response channel is full, skip
+			}
+
 			_, err = trStream.Write(payload)
 			if err != nil {
+				log.Printf("Error writing to transcriber: %v", err)
 				return err
 			}
+
 		case <-timer.C:
-			return fmt.Errorf("Read operation timed out")
+			log.Printf("Read operation timed out for track %s, closing stream", track.ID())
+			cancel() // Signal shutdown
+			return nil
+
 		case err = <-errs:
 			log.Printf("Unexpected error reading track %s: %v", track.ID(), err)
+			cancel() // Signal shutdown
 			return err
+
+		case <-ctx.Done():
+			log.Printf("Context cancelled for track %s", track.ID())
+			return nil
 		}
 	}
 }
@@ -147,18 +209,48 @@ func (pi *PionRtcService) CreatePeerConnection() (PeerConnection, error) {
 		return nil, err
 	}
 
-	dataChan := make(chan *webrtc.DataChannel)
+	// Use a buffered channel to avoid blocking
+	dataChan := make(chan *webrtc.DataChannel, 1)
+	var audioTrack *webrtc.Track
+	var dataChannel *webrtc.DataChannel
+
+	// Helper function to start audio processing when both are ready
+	startAudioProcessing := func() {
+		if audioTrack != nil && dataChannel != nil {
+			log.Printf("Starting audio processing for track %s with DataChannel %s", audioTrack.ID(), dataChannel.Label())
+			go func() {
+				err := pi.handleAudioTrack(audioTrack, dataChannel)
+				if err != nil {
+					log.Printf("Error reading track (%s): %v\n", audioTrack.ID(), err)
+				}
+			}()
+		} else {
+			log.Printf("Not ready to start audio processing: audioTrack=%v, dataChannel=%v",
+				audioTrack != nil, dataChannel != nil)
+		}
+	}
 
 	pc.OnDataChannel(func(dc *webrtc.DataChannel) {
-		dataChan <- dc
+		log.Printf("DataChannel established: %s", dc.Label())
+		dataChannel = dc
+		select {
+		case dataChan <- dc:
+		default:
+			// Channel is full, replace the value
+		}
+		// Only start audio processing if we have both components
+		if audioTrack != nil && dataChannel != nil {
+			startAudioProcessing()
+		}
 	})
 
 	pc.OnTrack(func(track *webrtc.Track, r *webrtc.RTPReceiver) {
 		if track.Codec().Name == "opus" {
-			log.Printf("Received audio (%s) track, id = %s\n", track.Codec().Name, track.ID())
-			err := pi.handleAudioTrack(track, <-dataChan)
-			if err != nil {
-				log.Printf("Error reading track (%s): %v\n", track.ID(), err)
+			//log.Printf("Received audio (%s) track, id = %s\n", track.Codec().Name, track.ID())
+			audioTrack = track
+			// Only start audio processing if we have both components
+			if audioTrack != nil && dataChannel != nil {
+				startAudioProcessing()
 			}
 		}
 	})
