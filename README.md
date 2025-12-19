@@ -69,6 +69,11 @@ open http://localhost:9070
 </td>
 <td width="50%">
 
+I forked and modified it to add recording and transcribe function by muliple vendors - Whisper, Xunfei, Baidu, etc.
+
+So far, the function works by whisper, other vendors are to be verified.
+
+
 ### Features
 - **📈 Live Waveform** - See your audio in real-time
 - **📁 File Management** - Play, download, delete files
