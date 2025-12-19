@@ -27,6 +27,11 @@ type GoogleTrStream struct {
 
 // CreateStream creates a new transcription stream
 func (t *GoogleTranscriber) CreateStream() (Stream, error) {
+	return t.CreateStreamWithOptions(StreamOptions{})
+}
+
+// CreateStreamWithOptions creates a new transcription stream (options are ignored for Google Speech)
+func (t *GoogleTranscriber) CreateStreamWithOptions(opts StreamOptions) (Stream, error) {
 	stream, err := t.speechClient.StreamingRecognize(t.ctx)
 	if err != nil {
 		return nil, err

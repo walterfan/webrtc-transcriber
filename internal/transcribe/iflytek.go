@@ -78,6 +78,11 @@ type XunfeiResponse struct {
 
 // CreateStream creates a new transcription stream
 func (t *IflyTekTranscriber) CreateStream() (Stream, error) {
+	return t.CreateStreamWithOptions(StreamOptions{})
+}
+
+// CreateStreamWithOptions creates a new transcription stream (options are ignored for IflyTek)
+func (t *IflyTekTranscriber) CreateStreamWithOptions(opts StreamOptions) (Stream, error) {
 	// Generate authentication URL
 	authURL, err := t.generateAuthURL()
 	if err != nil {

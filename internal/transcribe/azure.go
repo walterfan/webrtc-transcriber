@@ -57,6 +57,11 @@ type azureSpeechResponse struct {
 
 // CreateStream creates a new transcription stream
 func (a *AzureTranscriber) CreateStream() (Stream, error) {
+	return a.CreateStreamWithOptions(StreamOptions{})
+}
+
+// CreateStreamWithOptions creates a new transcription stream (options are ignored for Azure)
+func (a *AzureTranscriber) CreateStreamWithOptions(opts StreamOptions) (Stream, error) {
 	// Generate WebSocket URL for Azure Speech Service
 	wsURL := fmt.Sprintf("wss://%s.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1?api-version=2021-08-01-preview", a.region)
 

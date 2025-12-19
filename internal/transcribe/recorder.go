@@ -51,6 +51,11 @@ type wavHeader struct {
 
 // CreateStream creates a new recording stream
 func (r *RecorderTranscriber) CreateStream() (Stream, error) {
+	return r.CreateStreamWithOptions(StreamOptions{})
+}
+
+// CreateStreamWithOptions creates a new recording stream (options are ignored for recorder)
+func (r *RecorderTranscriber) CreateStreamWithOptions(opts StreamOptions) (Stream, error) {
 	r.mu.Lock()
 	r.counter++
 	counter := r.counter
@@ -271,6 +276,7 @@ func (rs *RecorderStream) Close() error {
 		Text:       rs.fileName,
 		Confidence: 1.0, // Recording is always successful
 		Final:      true,
+		AudioFile:  rs.filePath,
 	}
 
 	// Close results channel

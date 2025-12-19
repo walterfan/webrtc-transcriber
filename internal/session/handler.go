@@ -2,13 +2,14 @@ package session
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 
 	"github.com/walterfan/webrtc-transcriber/internal/rtc"
 )
 
 // MakeHandler returns an HTTP handler for the session service
-func MakeHandler(webrtc rtc.Service) http.Handler {
+func MakeHandler(webrtcService rtc.Service) http.Handler {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
@@ -23,15 +24,34 @@ func MakeHandler(webrtc rtc.Service) http.Handler {
 			return
 		}
 
-		peer, err := webrtc.CreatePeerConnection()
+		// Log the language selection
+		language := req.Language
+		if language == "" {
+			language = "auto"
+		}
+
+		// Default transcribe to true if not specified
+		transcribe := true
+		if req.Transcribe != nil {
+			transcribe = *req.Transcribe
+		}
+		log.Printf("Creating peer connection with language: %s, transcribe: %v", language, transcribe)
+
+		// Create peer connection with options
+		peer, err := webrtcService.CreatePeerConnectionWithOptions(rtc.PeerConnectionOptions{
+			Language:   language,
+			Transcribe: transcribe,
+		})
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		answer, err := peer.ProcessOffer(req.Offer)
 
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		payload, err := json.Marshal(newSessionResponse{
@@ -39,6 +59,7 @@ func MakeHandler(webrtc rtc.Service) http.Handler {
 		})
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
+			return
 		}
 
 		w.Write(payload)

@@ -24,6 +24,12 @@ type PionRtcService struct {
 	transcriber transcribe.Service
 }
 
+// streamOptions holds per-connection options for audio processing
+type streamOptions struct {
+	language   string
+	transcribe bool
+}
+
 // NewPionRtcService creates a new instances of PionRtcService
 func NewPionRtcService(stun string, transcriber transcribe.Service) Service {
 	return &PionRtcService{
@@ -60,7 +66,7 @@ func (p *PionPeerConnection) Close() error {
 	return p.pc.Close()
 }
 
-func (pi *PionRtcService) handleAudioTrack(track *webrtc.Track, dc *webrtc.DataChannel) error {
+func (pi *PionRtcService) handleAudioTrack(track *webrtc.Track, dc *webrtc.DataChannel, opts streamOptions) error {
 	// Safety check for nil parameters
 	if track == nil {
 		return fmt.Errorf("track is nil")
@@ -76,7 +82,12 @@ func (pi *PionRtcService) handleAudioTrack(track *webrtc.Track, dc *webrtc.DataC
 	if err != nil {
 		return err
 	}
-	trStream, err := pi.transcriber.CreateStream()
+
+	// Create stream with options
+	trStream, err := pi.transcriber.CreateStreamWithOptions(transcribe.StreamOptions{
+		Language:   opts.language,
+		Transcribe: opts.transcribe,
+	})
 	if err != nil {
 		return err
 	}
@@ -196,6 +207,11 @@ func (pi *PionRtcService) handleAudioTrack(track *webrtc.Track, dc *webrtc.DataC
 // CreatePeerConnection creates and configures a new peer connection for
 // our purposes, receive one audio track and send data through one DataChannel
 func (pi *PionRtcService) CreatePeerConnection() (PeerConnection, error) {
+	return pi.CreatePeerConnectionWithOptions(PeerConnectionOptions{})
+}
+
+// CreatePeerConnectionWithOptions creates a peer connection with specified options
+func (pi *PionRtcService) CreatePeerConnectionWithOptions(opts PeerConnectionOptions) (PeerConnection, error) {
 	pcconf := webrtc.Configuration{
 		ICEServers: []webrtc.ICEServer{
 			webrtc.ICEServer{
@@ -209,6 +225,12 @@ func (pi *PionRtcService) CreatePeerConnection() (PeerConnection, error) {
 		return nil, err
 	}
 
+	// Store options for use in audio processing
+	streamOpts := streamOptions{
+		language:   opts.Language,
+		transcribe: opts.Transcribe,
+	}
+
 	// Use a buffered channel to avoid blocking
 	dataChan := make(chan *webrtc.DataChannel, 1)
 	var audioTrack *webrtc.Track
@@ -219,7 +241,7 @@ func (pi *PionRtcService) CreatePeerConnection() (PeerConnection, error) {
 		if audioTrack != nil && dataChannel != nil {
 			log.Printf("Starting audio processing for track %s with DataChannel %s", audioTrack.ID(), dataChannel.Label())
 			go func() {
-				err := pi.handleAudioTrack(audioTrack, dataChannel)
+				err := pi.handleAudioTrack(audioTrack, dataChannel, streamOpts)
 				if err != nil {
 					log.Printf("Error reading track (%s): %v\n", audioTrack.ID(), err)
 				}

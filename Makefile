@@ -1,5 +1,5 @@
 
-TARGET=transcribe-server
+TARGET=webrtc-transcriber
 
 .PHONY: default
 

@@ -55,6 +55,11 @@ type baiduSpeechResponse struct {
 
 // CreateStream creates a new transcription stream
 func (b *BaiduTranscriber) CreateStream() (Stream, error) {
+	return b.CreateStreamWithOptions(StreamOptions{})
+}
+
+// CreateStreamWithOptions creates a new transcription stream (options are ignored for Baidu)
+func (b *BaiduTranscriber) CreateStreamWithOptions(opts StreamOptions) (Stream, error) {
 	// Get access token
 	token, err := b.getAccessToken()
 	if err != nil {

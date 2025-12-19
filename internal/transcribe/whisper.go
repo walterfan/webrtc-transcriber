@@ -19,6 +19,7 @@ type WhisperTranscriber struct {
 	modelPath   string
 	whisperPath string
 	tempDir     string
+	language    string // Language code (e.g., "en", "zh", "auto")
 	ctx         context.Context
 	mu          sync.Mutex
 	counter     int
@@ -34,6 +35,8 @@ type WhisperStream struct {
 	results     chan Result
 	ctx         context.Context
 	transcriber *WhisperTranscriber
+	language    string // Per-stream language override
+	transcribe  bool   // Whether to transcribe (if false, just record)
 	mu          sync.Mutex
 	isClosed    bool
 }
@@ -46,12 +49,26 @@ type WhisperConfig struct {
 	Temperature float64 `json:"temperature"` // Sampling temperature (0.0 to 1.0)
 }
 
-// CreateStream creates a new transcription stream
+// CreateStream creates a new transcription stream with default language
 func (w *WhisperTranscriber) CreateStream() (Stream, error) {
+	return w.CreateStreamWithOptions(StreamOptions{Language: w.language, Transcribe: true})
+}
+
+// CreateStreamWithOptions creates a new transcription stream with specified options
+func (w *WhisperTranscriber) CreateStreamWithOptions(opts StreamOptions) (Stream, error) {
 	w.mu.Lock()
 	w.counter++
 	streamID := w.counter
 	w.mu.Unlock()
+
+	// Use provided language or fall back to transcriber default
+	language := opts.Language
+	if language == "" {
+		language = w.language
+	}
+
+	// Default transcribe to true if not explicitly set
+	transcribe := opts.Transcribe
 
 	// Create temporary file for audio data
 	fileName := fmt.Sprintf("whisper_audio_%d_%s.wav", streamID, time.Now().Format("20060102_150405"))
@@ -176,9 +193,11 @@ func (w *WhisperTranscriber) CreateStream() (Stream, error) {
 		results:     make(chan Result, 10),
 		ctx:         w.ctx,
 		transcriber: w,
+		language:    language,   // Store per-stream language
+		transcribe:  transcribe, // Store transcribe flag
 	}
 
-	log.Printf("Whisper stream created: %s", fileName)
+	log.Printf("Whisper stream created: %s (language: %s, transcribe: %v)", fileName, language, transcribe)
 	return stream, nil
 }
 
@@ -272,8 +291,23 @@ func (ws *WhisperStream) Close() error {
 		return nil
 	}
 
+	// Check if transcription is enabled
+	if !ws.transcribe {
+		// Record only mode - just return the audio file info
+		log.Printf("Record only mode - skipping transcription for: %s", ws.filePath)
+		ws.results <- Result{
+			Text:       "Recording saved (transcription disabled)",
+			Confidence: 1.0,
+			Final:      true,
+			AudioFile:  ws.filePath,
+		}
+		close(ws.results)
+		log.Printf("Recording completed: %s (Size: %d bytes, Audio: %d bytes)", filepath.Base(ws.filePath), fileSize, audioDataSize)
+		return nil
+	}
+
 	// Transcribe audio using Whisper
-	text, err := ws.transcribeAudio(ws.filePath)
+	text, textFile, err := ws.transcribeAudio(ws.filePath)
 	if err != nil {
 		log.Printf("Error transcribing audio: %v", err)
 		// Send error result but don't fail the stream
@@ -281,6 +315,7 @@ func (ws *WhisperStream) Close() error {
 			Text:       fmt.Sprintf("Transcription error: %v", err),
 			Confidence: 0.0,
 			Final:      true,
+			AudioFile:  ws.filePath,
 		}
 	} else {
 		// Send successful transcription result
@@ -288,6 +323,8 @@ func (ws *WhisperStream) Close() error {
 			Text:       text,
 			Confidence: 0.9, // Whisper doesn't provide confidence scores
 			Final:      true,
+			AudioFile:  ws.filePath,
+			TextFile:   textFile,
 		}
 	}
 
@@ -333,38 +370,53 @@ func (ws *WhisperStream) Write(buffer []byte) (int, error) {
 }
 
 // transcribeAudio runs Whisper on the audio file and returns the transcription
-func (ws *WhisperStream) transcribeAudio(audioPath string) (string, error) {
+func (ws *WhisperStream) transcribeAudio(audioPath string) (string, string, error) {
 	// Check if Whisper is available
 	if ws.transcriber.whisperPath == "" {
-		return "", fmt.Errorf("whisper executable not found, please install whisper-ctranslate2 or set WHISPER_PATH")
+		return "", "", fmt.Errorf("whisper executable not found, please install whisper-ctranslate2 or set WHISPER_PATH")
 	}
-	log.Printf("Transcribing audio file: %s to output directory: %s", audioPath, ws.transcriber.tempDir)
+
+	// Use stream's language (which may override transcriber's default)
+	language := ws.language
+	if language == "" {
+		language = ws.transcriber.language
+	}
+
+	log.Printf("Transcribing audio file: %s to output directory: %s (language: %s)", audioPath, ws.transcriber.tempDir, language)
 	// Prepare Whisper command
 	args := []string{
 		"--model", ws.transcriber.modelPath,
 		"--output_dir", ws.transcriber.tempDir,
 		"--output_format", "txt",
-		//"--language", "en", // Auto-detect language
-		//"--task", "transcribe",
+		"--task", "transcribe",
 		"--temperature", "0.0", // Deterministic output
-		audioPath,
 	}
+
+	// Add language parameter if specified (not "auto")
+	if language != "" && language != "auto" {
+		args = append(args, "--language", language)
+	}
+
+	// Add the audio file path
+	args = append(args, audioPath)
 
 	// Execute Whisper
 	cmd := exec.CommandContext(ws.ctx, ws.transcriber.whisperPath, args...)
-	cmd.Dir = ws.transcriber.tempDir
+	// cmd.Dir = ws.transcriber.tempDir // Do not change dir, as audioPath is relative to project root
 
 	// Capture output
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		return "", fmt.Errorf("whisper execution failed: %w, output: %s", err, string(output))
+		return "", "", fmt.Errorf("whisper execution failed: %w, output: %s", err, string(output))
 	}
 
 	// Read the transcription result
 	outputFile := audioPath[:len(audioPath)-4] + ".txt" // Replace .wav with .txt
 	content, err := os.ReadFile(outputFile)
 	if err != nil {
-		return "", fmt.Errorf("failed to read transcription output: %w", err)
+		// Log the command output if reading the file fails, to help debug why it wasn't created
+		log.Printf("Whisper command output: %s", string(output))
+		return "", "", fmt.Errorf("failed to read transcription output: %w", err)
 	}
 
 	// Clean up output file based on retention flags
@@ -379,10 +431,10 @@ func (ws *WhisperStream) transcribeAudio(audioPath string) (string, error) {
 	// Return transcription text
 	text := string(content)
 	if text == "" {
-		return "", fmt.Errorf("transcription result is empty")
+		return "", outputFile, fmt.Errorf("transcription result is empty")
 	}
 
-	return text, nil
+	return text, outputFile, nil
 }
 
 // findWhisperExecutable searches for Whisper executable using "which" command first
@@ -491,7 +543,7 @@ func findWhisperModel() string {
 }
 
 // NewWhisperTranscriber creates a new instance of the transcribe.Service that uses Whisper
-func NewWhisperTranscriber(ctx context.Context, modelPath, whisperPath, tempDir string, keepWav, keepTxt bool) (Service, error) {
+func NewWhisperTranscriber(ctx context.Context, modelPath, whisperPath, tempDir, language string, keepWav, keepTxt bool) (Service, error) {
 	// Use provided paths or try to find them automatically
 	if whisperPath == "" {
 		whisperPath = findWhisperExecutable()
@@ -503,12 +555,17 @@ func NewWhisperTranscriber(ctx context.Context, modelPath, whisperPath, tempDir 
 	if modelPath == "" {
 		modelPath = findWhisperModel()
 		if modelPath == "" {
-			modelPath = "tiny"
+			modelPath = "small"
 		}
 	}
 
 	if tempDir == "" {
 		tempDir = "./output"
+	}
+
+	// Default language to auto-detect if not specified
+	if language == "" {
+		language = "auto"
 	}
 
 	// Create temp directory if it doesn't exist
@@ -521,12 +578,13 @@ func NewWhisperTranscriber(ctx context.Context, modelPath, whisperPath, tempDir 
 		return nil, fmt.Errorf("whisper executable not found at: %s", whisperPath)
 	}
 
-	log.Printf("Whisper transcriber initialized with model: %s, executable: %s", modelPath, whisperPath)
+	log.Printf("Whisper transcriber initialized with model: %s, executable: %s, language: %s", modelPath, whisperPath, language)
 
 	return &WhisperTranscriber{
 		modelPath:   modelPath,
 		whisperPath: whisperPath,
 		tempDir:     tempDir,
+		language:    language,
 		ctx:         ctx,
 		keepWav:     keepWav,
 		keepTxt:     keepTxt,
