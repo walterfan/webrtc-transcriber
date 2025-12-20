@@ -1,5 +1,7 @@
 # 🎙️ Lazy Speech To Text Converter
 
+> the idea is from [webrtc-speech-to-text](https://github.com/rviscarra/webrtc-speech-to-text), I did lots of change to whisper and other ASR vendors
+
 <p align="center">
   <img src="docs/snapshot.png" alt="Demo Screenshot" width="600">
 </p>
