@@ -509,11 +509,8 @@ func main() {
 	mux.HandleFunc("/logout", logoutHandler)
 	mux.HandleFunc("/auth/status", authStatusHandler)
 
-	// Serve static assets (login page needs these)
-	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, "./web/index.html")
-	})
-	mux.Handle("/static/", http.StripPrefix("/static", http.FileServer(http.Dir("./web"))))
+	// Serve static assets from frontend/dist
+	mux.Handle("/", http.FileServer(http.Dir("./frontend/dist")))
 
 	// Protected routes (auth required)
 	mux.Handle("/session", authMiddleware(session.MakeHandler(webrtc)))
