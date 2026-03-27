@@ -1,0 +1,25 @@
+/* Custom styles for WebRTC Transcriber documentation */
+
+.wy-nav-content {
+    max-width: 900px;
+}
+
+/* Improve code block readability */
+.highlight pre {
+    font-size: 0.85em;
+    line-height: 1.5;
+}
+
+/* Style admonitions */
+.admonition {
+    border-radius: 4px;
+}
+
+/* Architecture diagram styling */
+.architecture-diagram pre {
+    background-color: #f8f9fa;
+    border: 1px solid #e1e4e8;
+    border-radius: 6px;
+    padding: 16px;
+    font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+}

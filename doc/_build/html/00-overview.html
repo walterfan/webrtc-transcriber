@@ -1,0 +1,427 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Project Overview &mdash; WebRTC Transcriber  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+      <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+      <link rel="stylesheet" type="text/css" href="_static/sphinx-design.min.css?v=95c83b7e" />
+      <link rel="stylesheet" type="text/css" href="_static/custom.css?v=50e60caa" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+      <script src="_static/copybutton.js?v=f281be69"></script>
+      <script src="_static/design-tabs.js?v=f930bc37"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Repository Map" href="01-repo-map.html" />
+    <link rel="prev" title="WebRTC Transcriber Documentation" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            WebRTC Transcriber
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Project Knowledge Base</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Project Overview</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#purpose">Purpose</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#business-boundaries">Business Boundaries</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="#what-we-do">What We Do</a></li>
+<li class="toctree-l3"><a class="reference internal" href="#what-we-don-t-do">What We Don’t Do</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#key-user-roles">Key User Roles</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#core-use-cases">Core Use Cases</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#technology-stack">Technology Stack</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#deployment-model">Deployment Model</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#quality-targets">Quality Targets</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="01-repo-map.html">Repository Map</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="01-repo-map.html#directory-structure">Directory Structure</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01-repo-map.html#directory-responsibilities">Directory Responsibilities</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01-repo-map.html#key-entry-points">Key Entry Points</a></li>
+<li class="toctree-l2"><a class="reference internal" href="01-repo-map.html#conventions">Conventions</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="01-repo-map.html#naming">Naming</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01-repo-map.html#layering">Layering</a></li>
+<li class="toctree-l3"><a class="reference internal" href="01-repo-map.html#common-patterns">Common Patterns</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="02-architecture.html">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="02-architecture.html#component-overview">Component Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-architecture.html#key-call-chains">Key Call Chains</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="02-architecture.html#use-case-1-real-time-transcription-full-mode">Use Case 1: Real-time Transcription (Full Mode)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-architecture.html#use-case-2-file-management">Use Case 2: File Management</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="02-architecture.html#module-dependencies">Module Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="02-architecture.html#cross-cutting-concerns">Cross-Cutting Concerns</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="02-architecture.html#authentication">Authentication</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-architecture.html#error-handling">Error Handling</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-architecture.html#configuration">Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-architecture.html#logging">Logging</a></li>
+<li class="toctree-l3"><a class="reference internal" href="02-architecture.html#concurrency">Concurrency</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="03-workflows.html">Business Workflows</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="03-workflows.html#workflow-real-time-speech-transcription">Workflow: Real-time Speech Transcription</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#overview">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#steps">Steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#input-output">Input/Output</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#key-validations">Key Validations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#error-branches">Error Branches</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#data-entities">Data Entities</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#code-entry-points">Code Entry Points</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="03-workflows.html#workflow-file-management">Workflow: File Management</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#id1">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#id2">Steps</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#validations">Validations</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#id3">Code Entry Points</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="03-workflows.html#workflow-vendor-selection">Workflow: Vendor Selection</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#id4">Overview</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#priority-order">Priority Order</a></li>
+<li class="toctree-l3"><a class="reference internal" href="03-workflows.html#code-entry-point">Code Entry Point</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="04-data-and-api.html">Data Model and API Contracts</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="04-data-and-api.html#data-model">Data Model</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="04-data-and-api.html#in-memory-state">In-Memory State</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04-data-and-api.html#filesystem-state">Filesystem State</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="04-data-and-api.html#http-api">HTTP API</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="04-data-and-api.html#public-endpoints">Public Endpoints</a></li>
+<li class="toctree-l3"><a class="reference internal" href="04-data-and-api.html#protected-endpoints">Protected Endpoints</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="04-data-and-api.html#webrtc-datachannel-messages">WebRTC DataChannel Messages</a></li>
+<li class="toctree-l2"><a class="reference internal" href="04-data-and-api.html#internal-interfaces">Internal Interfaces</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="04-data-and-api.html#transcribe-service"><code class="docutils literal notranslate"><span class="pre">transcribe.Service</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="04-data-and-api.html#transcribe-stream"><code class="docutils literal notranslate"><span class="pre">transcribe.Stream</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="04-data-and-api.html#rtc-service"><code class="docutils literal notranslate"><span class="pre">rtc.Service</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="04-data-and-api.html#rtc-peerconnection"><code class="docutils literal notranslate"><span class="pre">rtc.PeerConnection</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="05-conventions.html">Engineering Conventions</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="05-conventions.html#code-style">Code Style</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="05-conventions.html#go">Go</a></li>
+<li class="toctree-l3"><a class="reference internal" href="05-conventions.html#typescript-vue">TypeScript / Vue</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="05-conventions.html#error-handling">Error Handling</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="05-conventions.html#go-backend">Go Backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="05-conventions.html#frontend">Frontend</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="05-conventions.html#logging">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-conventions.html#configuration-management">Configuration Management</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-conventions.html#feature-flags">Feature Flags</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-conventions.html#versioning">Versioning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-conventions.html#anti-patterns">Anti-Patterns</a></li>
+<li class="toctree-l2"><a class="reference internal" href="05-conventions.html#git-workflow">Git Workflow</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="06-runbook.html">Operations Runbook</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="06-runbook.html#one-command-startup">One-Command Startup</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06-runbook.html#prerequisites">Prerequisites</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#system-dependencies">System Dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#installing-dependencies">Installing Dependencies</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="06-runbook.html#build-commands">Build Commands</a></li>
+<li class="toctree-l2"><a class="reference internal" href="06-runbook.html#development-mode">Development Mode</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#backend">Backend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#frontend-with-hot-reload">Frontend (with hot reload)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="06-runbook.html#configuration">Configuration</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#minimal-setup">Minimal Setup</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#full-configuration">Full Configuration</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#cli-flags">CLI Flags</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="06-runbook.html#common-troubleshooting">Common Troubleshooting</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#opus-build-errors">Opus build errors</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#whisper-not-found">Whisper not found</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#port-already-in-use">Port already in use</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#no-accounts-configured">No accounts configured</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#webrtc-connection-fails-behind-nat">WebRTC connection fails behind NAT</a></li>
+<li class="toctree-l3"><a class="reference internal" href="06-runbook.html#frontend-shows-blank-page">Frontend shows blank page</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="06-runbook.html#monitoring">Monitoring</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="07-testing.html">Testing Strategy</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="07-testing.html#current-state">Current State</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-testing.html#recommended-test-pyramid">Recommended Test Pyramid</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="07-testing.html#unit-tests-target-70-of-test-effort">Unit Tests (Target: 70% of test effort)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-testing.html#integration-tests-target-20-of-test-effort">Integration Tests (Target: 20% of test effort)</a></li>
+<li class="toctree-l3"><a class="reference internal" href="07-testing.html#end-to-end-tests-target-10-of-test-effort">End-to-End Tests (Target: 10% of test effort)</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="07-testing.html#critical-path-test-checklist">Critical Path Test Checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-testing.html#test-data">Test Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-testing.html#coverage-thresholds">Coverage Thresholds</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-testing.html#running-tests">Running Tests</a></li>
+<li class="toctree-l2"><a class="reference internal" href="07-testing.html#flaky-test-handling">Flaky Test Handling</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ai-guide.html">AI Usage Guide</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="ai-guide.html#orientation">Orientation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ai-guide.html#key-interfaces">Key Interfaces</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ai-guide.html#common-tasks">Common Tasks</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ai-guide.html#adding-an-http-endpoint">Adding an HTTP endpoint</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai-guide.html#modifying-the-frontend">Modifying the frontend</a></li>
+<li class="toctree-l3"><a class="reference internal" href="ai-guide.html#debugging-transcription-issues">Debugging transcription issues</a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ai-guide.html#known-gaps">Known Gaps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="ai-guide.html#coding-guidelines">Coding Guidelines</a></li>
+</ul>
+</li>
+</ul>
+<p class="caption" role="heading"><span class="caption-text">Decisions &amp; Changes</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="adr/index.html">Architecture Decision Records</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="adr/index.html#how-to-create-an-adr">How to Create an ADR</a></li>
+<li class="toctree-l2"><a class="reference internal" href="adr/index.html#adr-index">ADR Index</a><ul class="simple">
+</ul>
+</li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changes/index.html">Change Proposals</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="changes/index.html#how-to-create-a-change-proposal">How to Create a Change Proposal</a></li>
+<li class="toctree-l2"><a class="reference internal" href="changes/index.html#active-changes">Active Changes</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">WebRTC Transcriber</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Project Overview</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/00-overview.md.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="project-overview">
+<h1>Project Overview<a class="headerlink" href="#project-overview" title="Link to this heading"></a></h1>
+<section id="purpose">
+<h2>Purpose<a class="headerlink" href="#purpose" title="Link to this heading"></a></h2>
+<p>WebRTC Transcriber is a real-time speech-to-text application that captures audio from a browser via WebRTC, streams it to a Go backend, and feeds it into an AI transcription engine (primarily OpenAI Whisper running locally). Transcription results are pushed back to the browser over a WebRTC DataChannel with low latency.</p>
+<p>The project originated as a fork of <a class="reference external" href="https://github.com/rviscarra/webrtc-speech-to-text">webrtc-speech-to-text</a> with significant additions: a Vue 3 frontend, multi-vendor transcription support, audio recording/playback, and file management.</p>
+</section>
+<section id="business-boundaries">
+<h2>Business Boundaries<a class="headerlink" href="#business-boundaries" title="Link to this heading"></a></h2>
+<section id="what-we-do">
+<h3>What We Do<a class="headerlink" href="#what-we-do" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>Capture microphone audio in the browser and stream it to the server via WebRTC (Opus codec).</p></li>
+<li><p>Decode Opus to PCM on the server and pipe it to a transcription backend.</p></li>
+<li><p>Return transcription results to the browser in real time over a DataChannel.</p></li>
+<li><p>Record audio to WAV files on disk for later playback or re-transcription.</p></li>
+<li><p>Provide a web UI for controlling recording, transcription, language selection, and file management.</p></li>
+<li><p>Support multiple transcription vendors: Whisper (default, local), Google Speech, Azure Speech, Baidu, and Xunfei.</p></li>
+</ul>
+</section>
+<section id="what-we-don-t-do">
+<h3>What We Don’t Do<a class="headerlink" href="#what-we-don-t-do" title="Link to this heading"></a></h3>
+<ul class="simple">
+<li><p>No user registration or persistent user database – accounts are configured via environment variables.</p></li>
+<li><p>No multi-tenant isolation – all authenticated users share the same recordings directory.</p></li>
+<li><p>No horizontal scaling or clustering – single-process, single-node deployment.</p></li>
+<li><p>No video capture or screen sharing.</p></li>
+<li><p>No real-time collaboration or shared transcription sessions between users.</p></li>
+</ul>
+</section>
+</section>
+<section id="key-user-roles">
+<h2>Key User Roles<a class="headerlink" href="#key-user-roles" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p><strong>End User</strong>: Opens the web UI, logs in, records audio, and views transcription results.</p></li>
+<li><p><strong>Administrator</strong>: Configures accounts, selects the transcription vendor, and manages the server process.</p></li>
+</ul>
+</section>
+<section id="core-use-cases">
+<h2>Core Use Cases<a class="headerlink" href="#core-use-cases" title="Link to this heading"></a></h2>
+<ol class="arabic simple">
+<li><p><strong>Full Mode</strong> (default): Record audio and transcribe simultaneously. Results appear in real time.</p></li>
+<li><p><strong>Record Only</strong>: Capture audio to a WAV file without transcription.</p></li>
+<li><p><strong>Transcribe Only</strong>: Transcribe a previously recorded WAV file (frontend-initiated; backend endpoint pending).</p></li>
+<li><p><strong>File Management</strong>: List, play, download, and delete recordings from the web UI.</p></li>
+</ol>
+</section>
+<section id="technology-stack">
+<h2>Technology Stack<a class="headerlink" href="#technology-stack" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Layer</p></th>
+<th class="head"><p>Technology</p></th>
+<th class="head"><p>Version</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Language (backend)</p></td>
+<td><p>Go</p></td>
+<td><p>1.12+</p></td>
+</tr>
+<tr class="row-odd"><td><p>WebRTC</p></td>
+<td><p>Pion WebRTC</p></td>
+<td><p>v2.0.15</p></td>
+</tr>
+<tr class="row-even"><td><p>Audio codec</p></td>
+<td><p>Opus (hraban/opus)</p></td>
+<td><p>v2</p></td>
+</tr>
+<tr class="row-odd"><td><p>HTTP routing</p></td>
+<td><p>Go <code class="docutils literal notranslate"><span class="pre">net/http</span></code> (stdlib)</p></td>
+<td><p>–</p></td>
+</tr>
+<tr class="row-even"><td><p>Config loading</p></td>
+<td><p>godotenv</p></td>
+<td><p>v1.5.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>Frontend framework</p></td>
+<td><p>Vue 3 + TypeScript</p></td>
+<td><p>3.x</p></td>
+</tr>
+<tr class="row-even"><td><p>Build tool</p></td>
+<td><p>Vite</p></td>
+<td><p>7.x</p></td>
+</tr>
+<tr class="row-odd"><td><p>CSS framework</p></td>
+<td><p>Tailwind CSS</p></td>
+<td><p>4.x</p></td>
+</tr>
+<tr class="row-even"><td><p>Transcription (default)</p></td>
+<td><p>whisper-ctranslate2 (Python)</p></td>
+<td><p>latest</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cloud alternatives</p></td>
+<td><p>Google Speech, Azure Speech, Baidu, Xunfei</p></td>
+<td><p>various</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="deployment-model">
+<h2>Deployment Model<a class="headerlink" href="#deployment-model" title="Link to this heading"></a></h2>
+<p><strong>Single-process monolith.</strong> The Go binary serves both the API and the static frontend assets (<code class="docutils literal notranslate"><span class="pre">frontend/dist</span></code>). There is no container orchestration, no database, and no message queue. The server listens on a single HTTP port (default <code class="docutils literal notranslate"><span class="pre">9070</span></code>).</p>
+</section>
+<section id="quality-targets">
+<h2>Quality Targets<a class="headerlink" href="#quality-targets" title="Link to this heading"></a></h2>
+<table class="docutils align-default">
+<thead>
+<tr class="row-odd"><th class="head"><p>Dimension</p></th>
+<th class="head"><p>Target</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Latency</p></td>
+<td><p>Transcription results visible within 2-5 seconds of speech (Whisper, <code class="docutils literal notranslate"><span class="pre">small</span></code> model)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Availability</p></td>
+<td><p>Proof-of-concept; no HA requirements</p></td>
+</tr>
+<tr class="row-even"><td><p>Accuracy</p></td>
+<td><p>Depends on Whisper model size; <code class="docutils literal notranslate"><span class="pre">small</span></code> is the default trade-off</p></td>
+</tr>
+<tr class="row-odd"><td><p>Privacy</p></td>
+<td><p>All processing local by default (Whisper); no data leaves the machine</p></td>
+</tr>
+<tr class="row-even"><td><p>Browser support</p></td>
+<td><p>Chrome 75+, Firefox 67+, Safari 12.1+</p></td>
+</tr>
+</tbody>
+</table>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="WebRTC Transcriber Documentation" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="01-repo-map.html" class="btn btn-neutral float-right" title="Repository Map" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Walter Fan.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>
